@@ -15,26 +15,28 @@
  *******************************************************************************/
 package uk.co.senab.photoview.sample;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import uk.co.senab.photoview.PhotoView;
+import com.facebook.drawee.drawable.ScalingUtils;
 
-public class RotationSampleActivity extends Activity {
+import uk.co.senab.photoview.PhotoDraweeView;
 
-    private PhotoView photo;
+public class RotationSampleActivity extends FrescoActivity {
+
+    private PhotoDraweeView photoView;
     private final Handler handler = new Handler();
     private boolean rotating = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        photo = new PhotoView(this);
-        photo.setImageResource(R.drawable.wallpaper);
-        setContentView(photo);
+        photoView = new PhotoDraweeView(this);
+        photoView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER);
+        photoView.setImageURI(getImageUri(R.drawable.wallpaper));
+        setContentView(photoView);
     }
 
     @Override
@@ -59,25 +61,25 @@ public class RotationSampleActivity extends Activity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case 0:
-                photo.setRotationBy(10);
+                photoView.setRotationBy(10);
                 return true;
             case 1:
-                photo.setRotationBy(-10);
+                photoView.setRotationBy(-10);
                 return true;
             case 2:
                 toggleRotation();
                 return true;
             case 3:
-                photo.setRotationTo(0);
+                photoView.setRotationTo(0);
                 return true;
             case 4:
-                photo.setRotationTo(90);
+                photoView.setRotationTo(90);
                 return true;
             case 5:
-                photo.setRotationTo(180);
+                photoView.setRotationTo(180);
                 return true;
             case 6:
-                photo.setRotationTo(270);
+                photoView.setRotationTo(270);
                 return true;
         }
 
@@ -97,7 +99,7 @@ public class RotationSampleActivity extends Activity {
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                photo.setRotationBy(1);
+                photoView.setRotationBy(1);
                 rotateLoop();
             }
         }, 15);
