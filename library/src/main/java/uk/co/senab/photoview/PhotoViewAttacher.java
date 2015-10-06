@@ -1,12 +1,12 @@
 /*******************************************************************************
  * Copyright 2011, 2012 Chris Banes.
- *
+ * <p/>
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * <p/>
  * http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p/>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,6 @@ import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Matrix.ScaleToFit;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -45,7 +44,7 @@ import static android.view.MotionEvent.ACTION_CANCEL;
 import static android.view.MotionEvent.ACTION_DOWN;
 import static android.view.MotionEvent.ACTION_UP;
 
-public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
+public class PhotoViewAttacher<I extends ImageView> implements IPhotoView, View.OnTouchListener,
         OnGestureListener,
         ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -121,7 +120,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
         }
     }
 
-    private WeakReference<ImageView> mImageView;
+    private WeakReference<I> mImageView;
 
     // Gesture Detectors
     private GestureDetector mGestureDetector;
@@ -148,12 +147,12 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     private boolean mZoomEnabled;
     private ScaleType mScaleType = ScaleType.FIT_CENTER;
 
-    public PhotoViewAttacher(ImageView imageView) {
+    public PhotoViewAttacher(I imageView) {
         this(imageView, true);
     }
 
-    public PhotoViewAttacher(ImageView imageView, boolean zoomable) {
-        mImageView = new WeakReference<>(imageView);
+    public PhotoViewAttacher(I imageView, boolean zoomable) {
+        mImageView = new WeakReference<I>(imageView);
 
         imageView.setDrawingCacheEnabled(true);
         imageView.setOnTouchListener(this);
@@ -296,8 +295,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
         checkAndDisplayMatrix();
     }
 
-    public ImageView getImageView() {
-        ImageView imageView = null;
+    public I getImageView() {
+        I imageView = null;
 
         if (null != mImageView) {
             imageView = mImageView.get();
@@ -404,7 +403,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                     "onFling. sX: " + startX + " sY: " + startY + " Vx: "
                             + velocityX + " Vy: " + velocityY);
         }
-        ImageView imageView = getImageView();
+        I imageView = getImageView();
         mCurrentFlingRunnable = new FlingRunnable(imageView.getContext());
         mCurrentFlingRunnable.fling(getImageViewWidth(imageView),
                 getImageViewHeight(imageView), (int) velocityX, (int) velocityY);
@@ -432,7 +431,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                 if (top != mIvTop || bottom != mIvBottom || left != mIvLeft
                         || right != mIvRight) {
                     // Update our base matrix, as the bounds have changed
-                    updateBaseMatrix(imageView.getDrawable());
+                    updateBaseMatrix();
 
                     // Update values as something has changed
                     mIvTop = top;
@@ -441,7 +440,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                     mIvLeft = left;
                 }
             } else {
-                updateBaseMatrix(imageView.getDrawable());
+                updateBaseMatrix();
             }
         }
     }
@@ -670,7 +669,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
                 setImageViewScaleTypeMatrix(imageView);
 
                 // Update the base matrix using the current drawable
-                updateBaseMatrix(imageView.getDrawable());
+                updateBaseMatrix();
             } else {
                 // Reset the Matrix...
                 resetMatrix();
@@ -706,7 +705,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     }
 
     private void checkImageViewScaleType() {
-        ImageView imageView = getImageView();
+        I imageView = getImageView();
 
         /**
          * PhotoView's getScaleType() will just divert to this.getScaleType() so
@@ -721,7 +720,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
     }
 
     private boolean checkMatrixBounds() {
-        final ImageView imageView = getImageView();
+        final I imageView = getImageView();
         if (null == imageView) {
             return false;
         }
@@ -789,16 +788,12 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
      * @return RectF - Displayed Rectangle
      */
     private RectF getDisplayRect(Matrix matrix) {
-        ImageView imageView = getImageView();
+        I imageView = getImageView();
 
         if (null != imageView) {
-            Drawable d = imageView.getDrawable();
-            if (null != d) {
-                mDisplayRect.set(0, 0, d.getIntrinsicWidth(),
-                        d.getIntrinsicHeight());
-                matrix.mapRect(mDisplayRect);
-                return mDisplayRect;
-            }
+            mDisplayRect.set(0, 0, getIntrinsicWidth(imageView), getIntrinsicHeight(imageView));
+            matrix.mapRect(mDisplayRect);
+            return mDisplayRect;
         }
         return null;
     }
@@ -860,19 +855,17 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
 
     /**
      * Calculate Matrix for FIT_CENTER
-     *
-     * @param d - Drawable being displayed
      */
-    private void updateBaseMatrix(Drawable d) {
-        ImageView imageView = getImageView();
-        if (null == imageView || null == d) {
-            return;
-        }
-
+    private void updateBaseMatrix() {
+        I imageView = getImageView();
         final float viewWidth = getImageViewWidth(imageView);
         final float viewHeight = getImageViewHeight(imageView);
-        final int drawableWidth = d.getIntrinsicWidth();
-        final int drawableHeight = d.getIntrinsicHeight();
+        final int drawableWidth = getIntrinsicWidth(imageView);
+        final int drawableHeight = getIntrinsicHeight(imageView);
+
+        if (null == imageView || viewWidth <= 0 || viewHeight <= 0 || drawableWidth <= 0 || drawableHeight <= 0) {
+            return;
+        }
 
         mBaseMatrix.reset();
 
@@ -925,16 +918,28 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener,
         resetMatrix();
     }
 
-    private int getImageViewWidth(ImageView imageView) {
+    protected int getImageViewWidth(I imageView) {
         if (null == imageView)
             return 0;
         return imageView.getWidth() - imageView.getPaddingLeft() - imageView.getPaddingRight();
     }
 
-    private int getImageViewHeight(ImageView imageView) {
+    protected int getImageViewHeight(I imageView) {
         if (null == imageView)
             return 0;
         return imageView.getHeight() - imageView.getPaddingTop() - imageView.getPaddingBottom();
+    }
+
+    protected int getIntrinsicWidth(I imageView) {
+        if (null == imageView || null == imageView.getDrawable())
+            return 0;
+        return imageView.getDrawable().getIntrinsicWidth();
+    }
+
+    protected int getIntrinsicHeight(I imageView) {
+        if (null == imageView || null == imageView.getDrawable())
+            return 0;
+        return imageView.getDrawable().getIntrinsicHeight();
     }
 
     /**

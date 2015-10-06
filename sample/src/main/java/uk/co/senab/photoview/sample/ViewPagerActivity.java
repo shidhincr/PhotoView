@@ -19,7 +19,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -27,7 +26,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import uk.co.senab.photoview.PhotoView;
+import com.facebook.drawee.drawable.ScalingUtils;
+
+import uk.co.senab.photoview.PhotoDraweeView;
 
 /**
  * Lock/Unlock button is added to the ActionBar.
@@ -37,7 +38,7 @@ import uk.co.senab.photoview.PhotoView;
  * Julia Zudikova
  */
 
-public class ViewPagerActivity extends AppCompatActivity {
+public class ViewPagerActivity extends FrescoActivity {
 
 	private static final String ISLOCKED_ARG = "isLocked";
 	
@@ -71,8 +72,9 @@ public class ViewPagerActivity extends AppCompatActivity {
 
 		@Override
 		public View instantiateItem(ViewGroup container, int position) {
-			PhotoView photoView = new PhotoView(container.getContext());
-			photoView.setImageResource(sDrawables[position]);
+			PhotoDraweeView photoView = new PhotoDraweeView(container.getContext());
+			photoView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER);
+			photoView.setImageURI(getImageUri(sDrawables[position]));
 
 			// Now just add PhotoView to ViewPager and return it
 			container.addView(photoView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);

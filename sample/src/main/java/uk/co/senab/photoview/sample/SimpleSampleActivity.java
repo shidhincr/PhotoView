@@ -19,15 +19,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,11 +33,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Random;
 
+import uk.co.senab.photoview.PhotoDraweeView;
 import uk.co.senab.photoview.PhotoViewAttacher;
 import uk.co.senab.photoview.PhotoViewAttacher.OnMatrixChangedListener;
 import uk.co.senab.photoview.PhotoViewAttacher.OnPhotoTapListener;
 
-public class SimpleSampleActivity extends AppCompatActivity {
+public class SimpleSampleActivity extends FrescoActivity {
 
     static final String PHOTO_TAP_TOAST_STRING = "Photo Tap! X: %.2f %% Y:%.2f %% ID: %d";
     static final String SCALE_TOAST_STRING = "Scaled to: %.2ff";
@@ -58,14 +56,13 @@ public class SimpleSampleActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        ImageView mImageView = (ImageView) findViewById(R.id.iv_photo);
+        PhotoDraweeView mImageView = (PhotoDraweeView) findViewById(R.id.iv_photo);
         mCurrMatrixTv = (TextView) findViewById(R.id.tv_current_matrix);
 
-        Drawable bitmap = getResources().getDrawable(R.drawable.wallpaper);
-        mImageView.setImageDrawable(bitmap);
+        mImageView.setImageURI(getImageUri(R.drawable.wallpaper));
 
         // The MAGIC happens here!
-        mAttacher = new PhotoViewAttacher(mImageView);
+        mAttacher = mImageView.getPhotoAttacher();
 
         // Lets attach some listeners, not required though!
         mAttacher.setOnMatrixChangeListener(new MatrixChangeListener());

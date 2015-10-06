@@ -1,13 +1,15 @@
-<merge xmlns:android="http://schemas.android.com/apk/res/android">
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:fresco="http://schemas.android.com/apk/res-auto">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
 
-        <uk.co.senab.photoview.PhotoView
+        <uk.co.senab.photoview.PhotoDraweeView
             android:id="@+id/iv_photo"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent" />
+            android:layout_height="fill_parent"
+            fresco:actualImageScaleType="fitCenter" />
 
         <TextView
             android:id="@+id/tv_current_matrix"
