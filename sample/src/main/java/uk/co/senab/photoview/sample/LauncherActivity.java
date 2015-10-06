@@ -24,7 +24,7 @@ import android.widget.ListView;
 
 public class LauncherActivity extends ListActivity {
 
-    public static final String[] options = {"Simple Sample", "ViewPager Sample", "Rotation Sample", "Remote URL"};
+    public static final String[] options = {"Simple Sample", "ViewPager Sample", "Rotation Sample", "Fresco Remote URL"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
