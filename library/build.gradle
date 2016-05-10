@@ -15,7 +15,7 @@ android {
 
 dependencies {
     compile "com.android.support:support-v4:23.0.1"
-    compile 'com.facebook.fresco:fresco:0.7.0+'
+    compile 'com.facebook.fresco:fresco:0.8.0+'
 }
 
 //./gradlew clean build bintrayUpload -PbintrayUser=BINTRAY_USERNAME -PbintrayKey=BINTRAY_KEY -PdryRun=false
